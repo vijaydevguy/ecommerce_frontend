@@ -17,10 +17,10 @@ const menu = [
     label: "ABOUT",
     link: "/about",
   },
-  // {
-  //   label: "CONTACT",
-  //   link: "/contact",
-  // },
+  {
+    label: "CONTACT",
+    link: "/contact",
+  },
 ];
 
 const Navbar = () => {
