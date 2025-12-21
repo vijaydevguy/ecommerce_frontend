@@ -23,7 +23,7 @@ const OurPolicy = () => {
   return (
     <div className="flex flex-col sm:flex-row justify-around gap-12 sm:gap-2 text-center py-20 text-xs sm:text-sm md:text-700">
       {exchangePolicy.map((e, i) => (
-        <div>
+        <div key={i}>
           <img
             src={e.icon}
             alt="icon"
@@ -32,7 +32,7 @@ const OurPolicy = () => {
           <p className="font-semibold">{e.title}</p>
           <p className="text-gray-400">{e.desc}</p>
         </div>
-      ))}   
+      ))}
     </div>
   );
 };

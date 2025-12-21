@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { assets } from "../assets/frontend_assets/assets";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { IoCloseCircle } from "react-icons/io5";
+import { ShopContext } from "../context/ShopContext";
 
 const menu = [
   {
@@ -27,6 +28,8 @@ const Navbar = () => {
 
   const [visible, setVisible] = useState(false);
   // console.log(visible);
+
+  const { showSearch, setShowSearch } = useContext(ShopContext);
 
   return (
     <div className=" flex items-center justify-between py-5 font-medium">
@@ -70,6 +73,7 @@ const Navbar = () => {
           src={assets.search_icon}
           alt="search"
           className="w-5 cursor-pointer min-w-[22px] min-h-[22px]"
+          onClick={() => setShowSearch(!showSearch)}
         />
         <div className="group relative">
           <img
