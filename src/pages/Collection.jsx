@@ -53,7 +53,7 @@ const Sorting = [
 ];
 
 const Collection = () => {
-  const { products } = useContext(ShopContext);
+  const { products, search, showSearch } = useContext(ShopContext);
 
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
@@ -131,18 +131,23 @@ const Collection = () => {
     }
     // If "relavent", no sorting is applied (default order)
 
-    console.log("productscopy after filtering and sorting", productsCopy);
+    // search filter code
+    if (search && showSearch) {
+      productsCopy = productsCopy.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()));
+    }
+
+    // console.log("productscopy after filtering and sorting", productsCopy);
     setFilterProducts(productsCopy);
   };
 
   // this use effect will apply filter and sort when dependencies change
   useEffect(() => {
     applyFilter();
-  }, [category, subCategory, sortType, products]);
+  }, [category, subCategory, sortType, products, search]);
 
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t border-gray-200 overflow-x-clip">
-      {/* filter options */}
+      {/*left filter options */}
       <div className="min-w-60">
         <p
           onClick={() => setShowFilter(!showFilter)}
@@ -200,7 +205,7 @@ const Collection = () => {
             className="border-2 border-gray-300 text-sm px-4"
             value={sortType}
             onChange={(e) => {
-              console.log(e.target.value);
+              // console.log(e.target.value);
               setSortType(e.target.value);
             }}
           >

@@ -7,6 +7,8 @@ const SearchBar = () => {
   const { search, setSearch, showSearch, setShowSearch } =
     useContext(ShopContext);
 
+  // console.log("search", search);
+
   const [visible, setVisible] = useState(false);
 
   const location = useLocation();

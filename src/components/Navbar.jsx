@@ -31,6 +31,8 @@ const Navbar = () => {
 
   const { showSearch, setShowSearch } = useContext(ShopContext);
 
+  // console.log("showsearch", showSearch)
+
   return (
     <div className=" flex items-center justify-between py-5 font-medium">
       <NavLink to={"/"} className="w-fit">
