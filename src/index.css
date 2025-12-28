@@ -1,7 +1,9 @@
+@import "tailwindcss";
+
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Prata&display=swap");
 
-*{
-    font-family: Outfit;
+* {
+  font-family: Outfit;
 }
 
 .prata-regular {
@@ -10,4 +12,6 @@
   font-style: normal;
 }
 
-@import "tailwindcss";
+::-webkit-scrollbar{
+  display: none;
+}
