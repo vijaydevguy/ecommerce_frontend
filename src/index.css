@@ -12,6 +12,14 @@
   font-style: normal;
 }
 
-::-webkit-scrollbar{
+::-webkit-scrollbar {
   display: none;
 }
+
+
+/* @layer components {
+  .border {
+    @apply border-gray-700;
+  }
+} */
+

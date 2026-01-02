@@ -29,8 +29,8 @@ const Navbar = () => {
   const [visible, setVisible] = useState(false);
   // console.log(visible);
 
-  const { showSearch, setShowSearch } = useContext(ShopContext);
-
+  const { showSearch, setShowSearch , getCartCount} = useContext(ShopContext);
+  // console.log("cartCnt",getCartCount());
   // console.log("showsearch", showSearch)
 
   return (
@@ -100,7 +100,8 @@ const Navbar = () => {
             className="w-5 min-w-5 cursor-pointer pointer-events-none min-w-[20px] min-h-[20px]"
           />
           <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px] ">
-            10
+            {/* 10 */}
+            {getCartCount()}
           </p>
         </Link>
 
