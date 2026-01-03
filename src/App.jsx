@@ -17,10 +17,18 @@ import { ToastContainer, toast } from "react-toastify";
 
 const App = () => {
   return (
-    <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+    <div className="relative px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
       <Navbar />
       <SearchBar />
-      <ToastContainer />
+
+      <ToastContainer
+        autoClose={2000}
+        hideProgressBar={false}
+        pauseOnHover={false}
+        position="top-left"
+        className={"!top-[80px] !w-[60%]"}
+      />
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/collection" element={<Collection />} />
