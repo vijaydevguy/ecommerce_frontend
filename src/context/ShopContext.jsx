@@ -1,10 +1,13 @@
 import { createContext, useEffect, useState } from "react";
 import { products } from "../assets/frontend_assets/assets";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export const ShopContext = createContext();
 
 const ShopContextProvider = (props) => {
+  const navigate = useNavigate();
+
   const currency = "Rs";
   const delivery_fee = 10;
 
@@ -16,7 +19,7 @@ const ShopContextProvider = (props) => {
   const addToCart = ({ itemId, size }) => {
     // structuredClone is modern way of deepclone
     let cartData = structuredClone(cartItems);
-
+    console.log("item id from add cart", itemId);
     if (cartData[itemId]) {
       if (cartData[itemId][size]) {
         cartData[itemId][size] += 1;
@@ -30,12 +33,50 @@ const ShopContextProvider = (props) => {
 
     console.log(cartData);
     setCartItems(cartData);
-    toast("Added item in cart")
+    toast("Added item in cart");
   };
 
   useEffect(() => {
     console.log("cartItems", cartItems);
   }, [cartItems]);
+
+  const updateQuantity = (itemId, size, quantity) => {
+    let cartData = structuredClone(cartItems);
+    cartData[itemId][size] = quantity;
+
+    setCartItems(cartData);
+  };
+
+  // cart count
+  const getCartCount = () => {
+    let totalCnt = 0;
+    for (const items in cartItems) {
+      for (const item in cartItems[items]) {
+        try {
+          if (cartItems[items][item] > 0) {
+            totalCnt += cartItems[items][item];
+          }
+        } catch (error) {}
+      }
+    }
+    return totalCnt;
+  };
+
+  // total cart amount calculation
+  const getCartAmount = () => {
+    let totalAmount = 0;
+    for (const items in cartItems) {
+      let itemInfo = products.find((product) => product._id === items);
+      for (const item in cartItems[items]) {
+        try {
+          if (cartItems[items][item] > 0) {
+            totalAmount += itemInfo.price * cartItems[items][item];
+          }
+        } catch (error) {}
+      }
+    }
+    return totalAmount;
+  };
 
   const value = {
     products,
@@ -46,10 +87,18 @@ const ShopContextProvider = (props) => {
     showSearch,
     setShowSearch,
 
+    // cntCount
+    getCartCount,
+    getCartAmount,
+
     // cart items
     addToCart,
     cartItems,
+    updateQuantity,
+
+    navigate,
   };
+
   return (
     <ShopContext.Provider value={value}>{props.children}</ShopContext.Provider>
   );

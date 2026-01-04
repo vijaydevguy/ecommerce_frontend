@@ -29,8 +29,8 @@ const Navbar = () => {
   const [visible, setVisible] = useState(false);
   // console.log(visible);
 
-  const { showSearch, setShowSearch } = useContext(ShopContext);
-
+  const { showSearch, setShowSearch, getCartCount } = useContext(ShopContext);
+  // console.log("cartCnt",getCartCount());
   // console.log("showsearch", showSearch)
 
   return (
@@ -78,11 +78,13 @@ const Navbar = () => {
           onClick={() => setShowSearch(!showSearch)}
         />
         <div className="group relative">
-          <img
-            src={assets.profile_icon}
-            alt="profile"
-            className="w-5 cursor-pointer min-w-[20px] min-h-[20px]"
-          />
+          <Link to={"/login"}>
+            <img
+              src={assets.profile_icon}
+              alt="profile"
+              className="w-5 cursor-pointer min-w-[20px] min-h-[20px]"
+            />
+          </Link>
 
           <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
             <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded-[4px]">
@@ -100,7 +102,8 @@ const Navbar = () => {
             className="w-5 min-w-5 cursor-pointer pointer-events-none min-w-[20px] min-h-[20px]"
           />
           <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px] ">
-            10
+            {/* 10 */}
+            {getCartCount()}
           </p>
         </Link>
 
