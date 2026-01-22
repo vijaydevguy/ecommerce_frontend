@@ -21,6 +21,8 @@ const ShopContextProvider = (props) => {
   //api data we will store here
   const [products, setProducts] = useState([]);
 
+  const [token, setToken] = useState("");
+
   // little bit i dont understand this concept i am new to this
   const addToCart = ({ itemId, size }) => {
     // structuredClone is modern way of deepclone
@@ -112,6 +114,16 @@ const ShopContextProvider = (props) => {
     console.log("offline products updated:", products1);
   }, [products]);
 
+  // this will help us to when reload it
+  // wont allow us to go login bcz it will
+  // handle local storage
+
+  useEffect(() => {
+    if (!token && localStorage.getItem("token")) {
+      setToken(localStorage.getItem("token"));
+    }
+  }, []);
+
   const value = {
     products,
     currency,
@@ -132,6 +144,9 @@ const ShopContextProvider = (props) => {
 
     navigate,
     backendUrl,
+
+    token,
+    setToken,
   };
 
   return (

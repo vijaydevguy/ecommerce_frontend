@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import Collection from "./pages/Collection";
 import About from "./pages/About";
@@ -14,6 +14,7 @@ import SearchBar from "./components/SearchBar";
 
 // toaster
 import { ToastContainer, toast } from "react-toastify";
+const token = localStorage.getItem("token");
 
 const App = () => {
   return (
@@ -36,6 +37,10 @@ const App = () => {
         <Route path="/cart" element={<Cart />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
+        <Route
+          path="/login"
+          element={!token ? <Login /> : <Navigate to="/" replace />}
+        />
         <Route path="/product/:productId" element={<Product />} />
         <Route path="/place-order" element={<PlaceOrder />} />
         <Route path="/orders" element={<Orders />} />

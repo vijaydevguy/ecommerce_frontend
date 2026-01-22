@@ -1,12 +1,68 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { ShopContext } from "../context/ShopContext";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const Login = () => {
+  const { token, setToken, navigate, backendUrl } = useContext(ShopContext);
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   const [isLogin, setLogin] = useState(false);
+
   const currentState = isLogin ? "Login" : "Sign Up";
 
   const onSubmitHandle = async (e) => {
     e.preventDefault();
+    console.log(name, password, email);
+
+    try {
+      // signup
+      if (currentState === "Sign Up") {
+        const res = await axios.post(`${backendUrl}/api/user/register`, {
+          name,
+          email,
+          password,
+        });
+
+        console.log(res.data);
+
+        if (res.data.success) {
+          setToken(res.data.token);
+          localStorage.setItem("token", res.data.token);
+          toast.success("Sign up successfully");
+        } else {
+          toast.error(res.data.message);
+        }
+      }
+      // login
+      else {
+        const res = await axios.post(`${backendUrl}/api/user/login`, {
+          email,
+          password,
+        });
+        console.log(res.data);
+
+        if (res.data.success) {
+          setToken(res.data.token);
+          localStorage.setItem("token", res.data.token);
+          toast.success("Login successfully");
+        } else {
+          toast.error(res.data.message);
+        }
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
+
+  useEffect(() => {
+    if (token) {
+      navigate("/");
+    }
+  }, [token]);
 
   return (
     <form
@@ -23,6 +79,8 @@ const Login = () => {
       ) : (
         <input
           type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           className="w-full px-3 py-2 border border-gray-800 transition-all duration-300 ease-in-out"
           placeholder="Name"
           required
@@ -31,12 +89,16 @@ const Login = () => {
 
       <input
         type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
         className="w-full px-3 py-2 border border-gray-800 transition-all duration-300 ease-in-out"
         placeholder="Email"
         required
       />
       <input
         type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
         className="w-full px-3 py-2 border border-gray-800 transition-all duration-300 ease-in-out"
         placeholder="Enter Password"
         required
