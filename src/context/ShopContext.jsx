@@ -24,10 +24,12 @@ const ShopContextProvider = (props) => {
   const [token, setToken] = useState("");
 
   // little bit i dont understand this concept i am new to this
-  const addToCart = ({ itemId, size }) => {
+  const addToCart = async ({ itemId, size }) => {
     // structuredClone is modern way of deepclone
+    // front end data fetching
     let cartData = structuredClone(cartItems);
     console.log("item id from add cart", itemId);
+
     if (cartData[itemId]) {
       if (cartData[itemId][size]) {
         cartData[itemId][size] += 1;
@@ -42,17 +44,75 @@ const ShopContextProvider = (props) => {
     console.log(cartData);
     setCartItems(cartData);
     toast("Added item in cart");
+
+    if (token) {
+      try {
+        const res = await axios.post(
+          `${backendUrl}/api/cart/add`,
+          { itemId, size },
+
+          { headers: { token } },
+          // {headers: { Authorization: `Bearer ${token}`}}
+        );
+
+        if (res.success) {
+          console.log("successfully added cart item in db", res);
+        } else {
+          console.log("something we wrong in cart", res.message);
+        }
+        console.log("cart response", res);
+      } catch (error) {
+        toast.error(error.message);
+      }
+    }
   };
 
   useEffect(() => {
     console.log("cartItems", cartItems);
   }, [cartItems]);
 
-  const updateQuantity = (itemId, size, quantity) => {
+  const updateQuantity = async (itemId, size, quantity) => {
     let cartData = structuredClone(cartItems);
     cartData[itemId][size] = quantity;
 
     setCartItems(cartData);
+
+    if (token) {
+      try {
+        const res = await axios.post(
+          `${backendUrl}/api/cart/update`,
+          {
+            itemId,
+            size,
+            quantity,
+          },
+          { headers: { token } },
+        );
+
+        if (res.data.success) {
+          console.log("Successfully updated cart item", res);
+        }
+      } catch (error) {
+        toast.error("failed to update cart item", error.message);
+      }
+    }
+  };
+
+  const getUserCart = async () => {
+    try {
+      const res = await axios.post(
+        `${backendUrl}/api/cart/get`,
+        {},
+        { headers: { token } },
+      );
+      console.log("getting cart ", res);
+      if (res.data.success) {
+        setCartItems(res.data.cart);
+      }
+      console.log(res);
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   // cart count
@@ -91,10 +151,11 @@ const ShopContextProvider = (props) => {
       const res = await axios.get(`${backendUrl}/api/product/list`);
       if (res.data.success) {
         setProducts(res.data.products);
-      } else {
-        setProducts(products1);
-        toast.error(res.data.messsage, "offline data fetched");
       }
+      // else {
+      //   setProducts(products1);
+      //   toast.error(res.data.messsage, "offline data fetched");
+      // }
       // console.log("products", products);
       // console.log("response", res.data.products);
       // console.log(res.data.message);
@@ -121,8 +182,15 @@ const ShopContextProvider = (props) => {
   useEffect(() => {
     if (!token && localStorage.getItem("token")) {
       setToken(localStorage.getItem("token"));
+      // getUserCart(localStorage.getItem("token"));
     }
   }, []);
+
+  useEffect(() => {
+    if (token) {
+      getUserCart();
+    }
+  }, [token]);
 
   const value = {
     products,
