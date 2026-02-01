@@ -14,7 +14,7 @@ const Cart = () => {
     const tempData = [];
 
     for (const items in cartItems) {
-      console.log("items", items);
+      // console.log("items", items);
       for (const item in cartItems[items]) {
         if (cartItems[items][item] > 0) {
           tempData.push({
@@ -27,11 +27,11 @@ const Cart = () => {
     }
     setCartData(tempData);
 
-    console.log("tempData", tempData);
-    console.log("cartData", cartData);
+    // console.log("tempData", tempData);
+    // console.log("cartData", cartData);
   }, [cartItems]);
 
-  console.log("cartData", cartData);
+  // console.log("cartData", cartData);
   return (
     <div className="border-t border-gray-200 pt-14 ">
       <div className="text-2xl  mb-3 ">
@@ -43,7 +43,7 @@ const Cart = () => {
           const productData = products.find(
             (product) => product._id === item._id,
           );
-          console.log("productData", productData);
+          // console.log("productData", productData);
           return (
             <div
               key={i}

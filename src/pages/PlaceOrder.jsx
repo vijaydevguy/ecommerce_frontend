@@ -1,9 +1,10 @@
 import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
-import { assets, products } from "../assets/frontend_assets/assets";
+import { assets } from "../assets/frontend_assets/assets";
 import { useContext, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const paymentMethods = [
   {
@@ -22,7 +23,9 @@ const paymentMethods = [
 ];
 
 const PlaceOrder = () => {
+  // payment method
   const [method, setMethod] = useState("cod");
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -35,56 +38,83 @@ const PlaceOrder = () => {
     phone: "",
   });
 
-  const { backendUrl, navigate, cartItems } = useContext(ShopContext);
+  const {
+    backendUrl,
+    navigate,
+    cartItems,
+    setCartItems,
+    products,
+    getCartAmount,
+    delivery_fee,
+    token,
+  } = useContext(ShopContext);
 
   const onChangeHandler = async (e) => {
     const name = e.target.name;
     const value = e.target.value;
-    console.log(name, value);
+    // console.log(name, value);
 
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    console.log("formData", formData, { [name]: value });
+    // console.log("formData", formData, { [name]: value });
   };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
     console.log("formData for placeorder", formData);
-
     let orderItems = [];
 
-
-    // this is functionhas problem check this
-    
-    for (const items in cartItems) {
-      for (const item in cartItems[items]) {
-        console.log("testing", item, items, cartItems[items][item]);
-        const ans = products.find(product._id == item);
-        console.log("ans", ans);
-        if (cartItems[items][item] > 0) {
-          const itemInfo = structuredClone(
-            products.find((product) => product._id === item),
-          );
-
-          if (itemInfo) {
-            //actually size we should get it throws error so i as of not took as sizes
-            itemInfo.size = item;
-            itemInfo.quantity = cartItems[items][item];
-            orderItems.push(itemInfo);
+    try {
+      //in this function we get info from cartItems
+      //and matching with products and if cart count is more than zero
+      //we will add that item id and quantity with that item form products
+      for (const items in cartItems) {
+        for (const item in cartItems[items]) {
+          if (cartItems[items][item] > 0) {
+            const itemInfo = structuredClone(
+              products.find((product) => product._id === items),
+            );
+            // console.log("itemInfo",itemInfo)
+            if (itemInfo) {
+              //actually size we should get it throws error so i as of not took as sizes
+              itemInfo.size = item;
+              itemInfo.quantity = cartItems[items][item];
+              orderItems.push(itemInfo);
+            }
           }
         }
       }
+      let orderData = {
+        address: formData,
+        items: orderItems,
+        amount: getCartAmount() + delivery_fee,
+      };
+
+      console.log("orderData", orderData);
+
+      switch (method) {
+        // api call for COD
+        case "cod":
+          const res = await axios.post(
+            `${backendUrl}/api/order/place`,
+            {},
+            { headers: { token } },
+          );
+          console.log("order", res);
+          if (res.data.success) {
+            setCartItems({});
+            navigate("/orders");
+          } else {
+            toast.error(res.data.message);
+          }
+          break;
+
+        default:
+          break;
+      }
+    } catch (error) {
+      toast.error(error.message);
     }
-
-    console.log("orderItems", orderItems);
-
-    // const res = await axios.post(`${backendUrl}/api/order/place`, formData, {
-    //   headers: { token },
-    // });
-
-    // if (res.data.success) {
-    //   navigate("/orders");
-    // }
   };
 
   return (

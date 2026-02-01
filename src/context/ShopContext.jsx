@@ -28,7 +28,7 @@ const ShopContextProvider = (props) => {
     // structuredClone is modern way of deepclone
     // front end data fetching
     let cartData = structuredClone(cartItems);
-    console.log("item id from add cart", itemId);
+    // console.log("item id from add cart", itemId);
 
     if (cartData[itemId]) {
       if (cartData[itemId][size]) {
@@ -41,7 +41,7 @@ const ShopContextProvider = (props) => {
       cartData[itemId][size] = 1;
     }
 
-    console.log(cartData);
+    // console.log(cartData);
     setCartItems(cartData);
     toast("Added item in cart");
 
@@ -55,21 +55,21 @@ const ShopContextProvider = (props) => {
           // {headers: { Authorization: `Bearer ${token}`}}
         );
 
-        if (res.success) {
-          console.log("successfully added cart item in db", res);
-        } else {
-          console.log("something we wrong in cart", res.message);
-        }
-        console.log("cart response", res);
+        // if (res.success) {
+        //   console.log("successfully added cart item in db", res);
+        // } else {
+        //   console.log("something we wrong in cart", res.message);
+        // }
+        // console.log("cart response", res);
       } catch (error) {
         toast.error(error.message);
       }
     }
   };
 
-  useEffect(() => {
-    console.log("cartItems", cartItems);
-  }, [cartItems]);
+  // useEffect(() => {
+  //   console.log("cartItems", cartItems);
+  // }, [cartItems]);
 
   const updateQuantity = async (itemId, size, quantity) => {
     let cartData = structuredClone(cartItems);
@@ -90,7 +90,7 @@ const ShopContextProvider = (props) => {
         );
 
         if (res.data.success) {
-          console.log("Successfully updated cart item", res);
+          // console.log("Successfully updated cart item", res);
         }
       } catch (error) {
         toast.error("failed to update cart item", error.message);
@@ -105,11 +105,11 @@ const ShopContextProvider = (props) => {
         {},
         { headers: { token } },
       );
-      console.log("getting cart ", res);
+      // console.log("getting cart ", res);
       if (res.data.success) {
         setCartItems(res.data.cart);
       }
-      console.log(res);
+      // console.log(res);
     } catch (error) {
       toast.error(error.message);
     }
@@ -149,13 +149,16 @@ const ShopContextProvider = (props) => {
   const getProductsData = async () => {
     try {
       const res = await axios.get(`${backendUrl}/api/product/list`);
+      // console.log("get data res",res)
+
       if (res.data.success) {
         setProducts(res.data.products);
+      } else {
+        if (!products) {
+          setProducts(products1);
+        }
+        toast.error(res.data.messsage, "offline data fetched");
       }
-      // else {
-      //   setProducts(products1);
-      //   toast.error(res.data.messsage, "offline data fetched");
-      // }
       // console.log("products", products);
       // console.log("response", res.data.products);
       // console.log(res.data.message);
@@ -167,12 +170,14 @@ const ShopContextProvider = (props) => {
 
   useEffect(() => {
     getProductsData();
-    console.log(products);
+    // console.log(products);
   }, []);
 
   useEffect(() => {
     console.log("products updated:", products);
-    console.log("offline products updated:", products1);
+    if (!products) {
+      console.log("offline products updated:", products1);
+    }
   }, [products]);
 
   // this will help us to when reload it
@@ -208,6 +213,7 @@ const ShopContextProvider = (props) => {
     // cart items
     addToCart,
     cartItems,
+    setCartItems,
     updateQuantity,
 
     navigate,
