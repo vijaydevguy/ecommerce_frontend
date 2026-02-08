@@ -11,10 +11,10 @@ const paymentMethods = [
     icon: assets.stripe_logo,
     type: "stripe",
   },
-  {
-    icon: assets.razorpay_logo,
-    type: "razorpay",
-  },
+  // {
+  //   icon: assets.razorpay_logo,
+  //   type: "razorpay",
+  // },
   {
     // icon: assets.stripe_logo,
     text: "CASH ON DELIVERY",
@@ -64,6 +64,8 @@ const PlaceOrder = () => {
     console.log("formData for placeorder", formData);
     let orderItems = [];
 
+    console.log("token", token);
+
     try {
       //in this function we get info from cartItems
       //and matching with products and if cart count is more than zero
@@ -97,7 +99,11 @@ const PlaceOrder = () => {
         case "cod":
           const res = await axios.post(
             `${backendUrl}/api/order/place`,
-            {},
+            {
+              address: formData,
+              items: orderItems,
+              amount: getCartAmount() + delivery_fee,
+            },
             { headers: { token } },
           );
           console.log("order", res);
@@ -106,6 +112,22 @@ const PlaceOrder = () => {
             navigate("/orders");
           } else {
             toast.error(res.data.message);
+          }
+          break;
+
+        case "stripe":
+          const resStripe = await axios.post(
+            `${backendUrl}/api/order/stripe`,
+            orderData,
+            { headers: { token } },
+          );
+
+          if (resStripe.data.success) {
+            const { session_url } = resStripe.data;
+            window.location.replace(session_url);
+            console.log(session_url);
+          } else {
+            toast.error(resStripe.data.message);
           }
           break;
 

@@ -31,6 +31,7 @@ const Login = () => {
 
         if (res.data.success) {
           setToken(res.data.token);
+          console.log(token, "tokenfromlogin");
           localStorage.setItem("token", res.data.token);
           toast.success("Sign up successfully");
         } else {
@@ -67,6 +68,7 @@ const Login = () => {
   return (
     <form
       onSubmit={(e) => onSubmitHandle(e)}
+      autoComplete="on"
       className="flex flex-col items-center w-[90%] sm:max-w-96 m-auto mt-14 gap-4 text-gray-800 transition-all duration-300 ease-in-out"
     >
       <div className="inline-flex items-center gap-2 mb-2 mt-10">

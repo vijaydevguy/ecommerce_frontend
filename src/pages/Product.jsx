@@ -6,7 +6,7 @@ import RelatedProducts from "../components/RelatedProducts";
 
 const Product = () => {
   const { productId } = useParams();
-  console.log(productId);
+  // console.log(productId);
 
   const { products, currency, addToCart } = useContext(ShopContext);
 
@@ -98,7 +98,6 @@ const Product = () => {
           </div>
           <button
             onClick={() => addToCart({ itemId: productData._id, size })}
-
             className="cursor-pointer bg-black text-white px-8 py-3 text-sm active:bg-black/80"
           >
             Add to cart

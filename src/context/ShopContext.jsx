@@ -23,6 +23,8 @@ const ShopContextProvider = (props) => {
 
   const [token, setToken] = useState("");
 
+  console.log(token, "token");
+
   // little bit i dont understand this concept i am new to this
   const addToCart = async ({ itemId, size }) => {
     // structuredClone is modern way of deepclone
@@ -185,10 +187,10 @@ const ShopContextProvider = (props) => {
   // handle local storage
 
   useEffect(() => {
-    if (!token && localStorage.getItem("token")) {
-      setToken(localStorage.getItem("token"));
-      // getUserCart(localStorage.getItem("token"));
-    }
+    // if (!token && localStorage.getItem("token")) {
+    setToken(localStorage.getItem("token"));
+    // getUserCart(localStorage.getItem("token"));
+    // }
   }, []);
 
   useEffect(() => {

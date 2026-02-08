@@ -14,6 +14,7 @@ import SearchBar from "./components/SearchBar";
 
 // toaster
 import { ToastContainer, toast } from "react-toastify";
+import Verify from "./pages/Verify";
 const token = localStorage.getItem("token");
 
 const App = () => {
@@ -44,6 +45,7 @@ const App = () => {
         <Route path="/product/:productId" element={<Product />} />
         <Route path="/place-order" element={<PlaceOrder />} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/verify" element={<Verify />} />
       </Routes>
     </div>
   );
