@@ -40,9 +40,7 @@ const Verify = () => {
     verifyPayment();
   }, [token]);
 
-  return <div>
-    
-  </div>;
+  return <div></div>;
 };
 
 export default Verify;
