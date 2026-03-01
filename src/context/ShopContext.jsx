@@ -56,7 +56,7 @@ const ShopContextProvider = (props) => {
           { headers: { token } },
           // {headers: { Authorization: `Bearer ${token}`}}
         );
-
+  
         // if (res.success) {
         //   console.log("successfully added cart item in db", res);
         // } else {
