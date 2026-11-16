@@ -20,6 +20,7 @@ const ShopContextProvider = (props) => {
 
   //api data we will store here
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [token, setToken] = useState("");
 
@@ -150,13 +151,14 @@ const ShopContextProvider = (props) => {
 
   const getProductsData = async () => {
     try {
+      setLoading(true);
       const res = await axios.get(`${backendUrl}/api/product/list`);
       // console.log("get data res",res)
 
       if (res.data.success) {
         setProducts(res.data.products);
       } else {
-        if (!products) {
+        if (!products || products.length === 0) {
           setProducts(products1);
         }
         toast.error(res.data.messsage, "offline data fetched");
@@ -167,6 +169,8 @@ const ShopContextProvider = (props) => {
     } catch (error) {
       toast.error(error.message, "offline data fetched");
       setProducts(products1);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -201,6 +205,7 @@ const ShopContextProvider = (props) => {
 
   const value = {
     products,
+    loading,
     currency,
     delivery_fee,
     search,

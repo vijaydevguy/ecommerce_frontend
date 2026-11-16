@@ -31,7 +31,7 @@ const Product = () => {
 
   useEffect(() => {
     fetchData();
-  }, [productId]);
+  }, [productId, products]);
 
   // const product = products.filter((item) => item._id == productId);
   // console.log("product", product[0].name);
@@ -162,7 +162,30 @@ const Product = () => {
       </div>
     </div>
   ) : (
-    <div className="opacity-0">asdfasdfsdaf</div>
+    <div className="border-t border-gray-200 py-10 animate-pulse">
+      <div className="flex gap-12 flex-col sm:flex-row">
+        {/* Images skeleton */}
+        <div className="flex flex-1 flex-col-reverse gap-3 sm:flex-row">
+          <div className="flex sm:flex-col gap-2 sm:w-[18.7%] w-full">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="w-[24%] sm:w-full aspect-square bg-gray-200 rounded-sm"
+              />
+            ))}
+          </div>
+          <div className="w-full sm:w-[80%] aspect-square sm:aspect-[4/5] bg-gray-200 rounded-sm" />
+        </div>
+        {/* Info skeleton */}
+        <div className="flex-1 space-y-4">
+          <div className="h-8 bg-gray-200 rounded w-3/4 mt-2" />
+          <div className="h-4 bg-gray-200 rounded w-1/4" />
+          <div className="h-8 bg-gray-200 rounded w-1/3 mt-4" />
+          <div className="h-20 bg-gray-200 rounded w-full mt-4" />
+          <div className="h-10 bg-gray-200 rounded w-32 mt-6" />
+        </div>
+      </div>
+    </div>
   );
 };
 

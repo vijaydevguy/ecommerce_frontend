@@ -2,19 +2,20 @@ import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
+import ProductItemSkeleton from "../components/ProductItemSkeleton";
 
 const BestSeller = () => {
-  const { products } = useContext(ShopContext);
+  const { products, loading } = useContext(ShopContext);
 
   const [bestSeller, setBestSeller] = useState([]);
-//   console.log(products);
+  //   console.log(products);
   useEffect(() => {
-    const bestProduct = products.filter((item) => item.bestseller);
+    const bestProduct = products.filter((item) => item.bestSeller);
     // console.log(bestProduct);
     setBestSeller(bestProduct.slice(0, 5));
   }, [products]);
 
-//   console.log(bestSeller);
+  // console.log(products, "testProducts");
 
   return (
     <div className="my-10">
@@ -28,15 +29,19 @@ const BestSeller = () => {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6">
-        {bestSeller.map((item, i) => (
-          <ProductItem
-            key={i}
-            id={item._id}
-            image={item.image}
-            name={item.name}
-            price={item.price}
-          />
-        ))}
+        {loading
+          ? Array.from({ length: 5 }).map((_, i) => (
+              <ProductItemSkeleton key={i} />
+            ))
+          : bestSeller.map((item, i) => (
+              <ProductItem
+                key={item._id || i}
+                id={item._id}
+                image={item.image}
+                name={item.name}
+                price={item.price}
+              />
+            ))}
       </div>
     </div>
   );

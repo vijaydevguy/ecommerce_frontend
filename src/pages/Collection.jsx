@@ -3,6 +3,7 @@ import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/frontend_assets/assets";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
+import ProductItemSkeleton from "../components/ProductItemSkeleton";
 import { Zoom } from "react-toastify";
 
 const Filters = [
@@ -54,7 +55,7 @@ const Sorting = [
 ];
 
 const Collection = () => {
-  const { products, search, showSearch } = useContext(ShopContext);
+  const { products, search, showSearch, loading } = useContext(ShopContext);
 
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
@@ -113,14 +114,14 @@ const Collection = () => {
     // Filter by category if any selected
     if (category.length > 0) {
       productsCopy = productsCopy.filter(
-        (item) => item.category && category.includes(item.category)
+        (item) => item.category && category.includes(item.category),
       );
     }
 
     // Filter by subcategory if any selected
     if (subCategory.length > 0) {
       productsCopy = productsCopy.filter(
-        (item) => item.subCategory && subCategory.includes(item.subCategory)
+        (item) => item.subCategory && subCategory.includes(item.subCategory),
       );
     }
 
@@ -134,7 +135,9 @@ const Collection = () => {
 
     // search filter code
     if (search && showSearch) {
-      productsCopy = productsCopy.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()));
+      productsCopy = productsCopy.filter((item) =>
+        item.name.toLowerCase().includes(search.toLowerCase()),
+      );
     }
 
     // console.log("productscopy after filtering and sorting", productsCopy);
@@ -223,17 +226,21 @@ const Collection = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6">
-          {filterProducts.map((p, i) => (
-            <ProductItem
-              key={i}
-              id={p._id}
-              name={p.name}
-              price={p.price}
-              image={p.image}
-            />
-          ))}
+          {loading
+            ? Array.from({ length: 8 }).map((_, i) => (
+                <ProductItemSkeleton key={i} />
+              ))
+            : filterProducts.map((p, i) => (
+                <ProductItem
+                  key={p._id || i}
+                  id={p._id}
+                  name={p.name}
+                  price={p.price}
+                  image={p.image}
+                />
+              ))}
         </div>
-        {filterProducts.length <= 0 && (
+        {!loading && filterProducts.length <= 0 && (
           <div className="flex flex-col gap-4 justify-center items-center h-full">
             <img
               src={assets.no_results}

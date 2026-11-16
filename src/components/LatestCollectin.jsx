@@ -2,9 +2,10 @@ import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "./Title";
 import ProductItem from "./ProductItem";
+import ProductItemSkeleton from "./ProductItemSkeleton";
 
 const LatestCollectin = () => {
-  const { products } = useContext(ShopContext);
+  const { products, loading } = useContext(ShopContext);
   //   console.log(products)
   const [latestProducts, setLatestProducts] = useState([]);
 
@@ -35,15 +36,19 @@ const LatestCollectin = () => {
 
       {/* Products */}
       <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6">
-        {latestProducts.map((p, i) => (
-          <ProductItem
-            key={i}
-            id={p._id}
-            name={p.name}
-            price={p.price}
-            image={p.image}
-          />
-        ))}
+        {loading
+          ? Array.from({ length: 10 }).map((_, i) => (
+              <ProductItemSkeleton key={i} />
+            ))
+          : latestProducts.map((p, i) => (
+              <ProductItem
+                key={p._id || i}
+                id={p._id}
+                name={p.name}
+                price={p.price}
+                image={p.image}
+              />
+            ))}
       </div>
     </div>
   );
