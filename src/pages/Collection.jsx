@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import axios from "axios";
 import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/frontend_assets/assets";
 import Title from "../components/Title";
@@ -55,7 +56,8 @@ const Sorting = [
 ];
 
 const Collection = () => {
-  const { products, search, showSearch, loading } = useContext(ShopContext);
+  const { products, search, showSearch, loading, backendUrl } =
+    useContext(ShopContext);
 
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
@@ -63,15 +65,21 @@ const Collection = () => {
   const [subCategory, setSubCategory] = useState([]);
   const [sortType, setSortType] = useState("relavent");
 
-  useEffect(() => {
-    setFilterProducts(products);
-  }, []);
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(12);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [fetching, setFetching] = useState(false);
 
-  //these below two functions will set category and subcategory
-  //values accordingly when we click
+  // Reset to page 1 whenever filters, search, limit, or sort change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [category, subCategory, sortType, search, showSearch, limit]);
+
+  // Categories & Subcategories toggle handlers
   const toggleCategory = (e) => {
     let val = e.target.value;
-    console.log("categry val", val);
     if (category.includes(val)) {
       setCategory((prev) => prev.filter((item) => item !== val));
     } else {
@@ -79,75 +87,112 @@ const Collection = () => {
     }
   };
 
-  // testing purpose only
-
-  // useEffect(() => {
-  //   console.log(" category", category);
-  // }, [category]);
-
   const toggleSubCategory = (e) => {
     let val = e.target.value;
-    console.log("subcategry val", val);
-    if (subCategory.includes(e.target.value)) {
-      setSubCategory((prev) => prev.filter((item) => item !== e.target.value));
+    if (subCategory.includes(val)) {
+      setSubCategory((prev) => prev.filter((item) => item !== val));
     } else {
-      setSubCategory((prev) => [...prev, e.target.value]);
+      setSubCategory((prev) => [...prev, val]);
     }
   };
 
-  // testing purpose only
-
-  // useEffect(() => {
-  //   console.log("sub category", subCategory);
-  // }, [subCategory]);
-
-  // this function will filter and sort products
-  const applyFilter = () => {
+  // Offline / fallback filtering logic
+  const fallbackClientFilter = () => {
     if (!products || products.length === 0) {
       setFilterProducts([]);
+      setTotalPages(1);
+      setTotalProducts(0);
       return;
     }
 
-    // Create a copy of products
     let productsCopy = [...products];
 
-    // Filter by category if any selected
+    // Filter by category
     if (category.length > 0) {
       productsCopy = productsCopy.filter(
         (item) => item.category && category.includes(item.category),
       );
     }
 
-    // Filter by subcategory if any selected
+    // Filter by subcategory
     if (subCategory.length > 0) {
       productsCopy = productsCopy.filter(
         (item) => item.subCategory && subCategory.includes(item.subCategory),
       );
     }
 
-    // Sort products based on sortType
+    // Sort products
     if (sortType === "low-high") {
       productsCopy.sort((a, b) => a.price - b.price);
     } else if (sortType === "high-low") {
       productsCopy.sort((a, b) => b.price - a.price);
     }
-    // If "relavent", no sorting is applied (default order)
 
-    // search filter code
-    if (search && showSearch) {
+    // Search filter
+    if (search && showSearch && search.trim() !== "") {
       productsCopy = productsCopy.filter((item) =>
         item.name.toLowerCase().includes(search.toLowerCase()),
       );
     }
 
-    // console.log("productscopy after filtering and sorting", productsCopy);
-    setFilterProducts(productsCopy);
+    setTotalProducts(productsCopy.length);
+    const pages = Math.ceil(productsCopy.length / limit) || 1;
+    setTotalPages(pages);
+
+    const startIndex = (currentPage - 1) * limit;
+    setFilterProducts(productsCopy.slice(startIndex, startIndex + limit));
   };
 
-  // this use effect will apply filter and sort when dependencies change
+  // Fetch products from backend API with pagination, filter, and search
+  const fetchCollectionProducts = async () => {
+    setFetching(true);
+    try {
+      const params = new URLSearchParams();
+      params.append("page", currentPage);
+      params.append("limit", limit);
+
+      if (category.length > 0) params.append("category", category.join(","));
+      if (subCategory.length > 0)
+        params.append("subCategory", subCategory.join(","));
+      if (sortType) params.append("sort", sortType);
+      if (search && showSearch && search.trim() !== "") {
+        params.append("search", search.trim());
+      }
+
+      const res = await axios.get(
+        `${backendUrl}/api/product/list?${params.toString()}`,
+      );
+
+      if (res.data.success && res.data.products) {
+        setFilterProducts(res.data.products);
+        if (res.data.pagination) {
+          setTotalPages(res.data.pagination.totalPages || 1);
+          setTotalProducts(
+            res.data.pagination.totalProducts || res.data.products.length,
+          );
+        }
+      } else {
+        fallbackClientFilter();
+      }
+    } catch (error) {
+      fallbackClientFilter();
+    } finally {
+      setFetching(false);
+    }
+  };
+
   useEffect(() => {
-    applyFilter();
-  }, [category, subCategory, sortType, products, search]);
+    fetchCollectionProducts();
+  }, [
+    category,
+    subCategory,
+    sortType,
+    search,
+    showSearch,
+    currentPage,
+    limit,
+    products,
+  ]);
 
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t border-gray-200 overflow-x-clip">
@@ -200,34 +245,51 @@ const Collection = () => {
 
       {/* right */}
       <div className="flex-1">
-        <div className="flex justify-between text-base sm:text-2xl mb-4">
-          <Title text1={"All"} text2={"COLLECTIONS"} />
-          {/* PRODUCT SORT */}
-          <select
-            name="sort"
-            id="sort"
-            className="border-2 border-gray-300 text-sm px-4"
-            value={sortType}
-            onChange={(e) => {
-              // console.log(e.target.value);
-              setSortType(e.target.value);
-            }}
-          >
-            {Sorting.map((s, i) => (
-              <option key={i} value={s.val}>
-                Sort by: {s.label}
-              </option>
-            ))}
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 text-base sm:text-2xl mb-4">
+          <div className="flex items-center gap-3">
+            <Title text1={"All"} text2={"COLLECTIONS"} />
+            {totalProducts > 0 && (
+              <span className="text-xs sm:text-sm text-gray-500 font-normal">
+                ({totalProducts} {totalProducts === 1 ? "item" : "items"})
+              </span>
+            )}
+          </div>
 
-            {/* <option value="relavent">Sort by: Relavent</option>
-            <option value="low-high">Sort by: Low to High</option>
-            <option value="high-low">Sort by: High to Low</option> */}
-          </select>
+          <div className="flex items-center gap-2">
+            {/* Limit Selector */}
+            <select
+              className="border-2 border-gray-300 text-sm px-2 py-1 rounded outline-none cursor-pointer"
+              value={limit}
+              onChange={(e) => setLimit(Number(e.target.value))}
+            >
+              <option value={8}>8 per page</option>
+              <option value={12}>12 per page</option>
+              <option value={24}>24 per page</option>
+            </select>
+
+            {/* PRODUCT SORT */}
+            <select
+              name="sort"
+              id="sort"
+              className="border-2 border-gray-300 text-sm px-4 py-1 rounded outline-none cursor-pointer"
+              value={sortType}
+              onChange={(e) => {
+                setSortType(e.target.value);
+              }}
+            >
+              {Sorting.map((s, i) => (
+                <option key={i} value={s.val}>
+                  Sort by: {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
+        {/* Products Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6">
-          {loading
-            ? Array.from({ length: 8 }).map((_, i) => (
+          {loading || fetching
+            ? Array.from({ length: limit }).map((_, i) => (
                 <ProductItemSkeleton key={i} />
               ))
             : filterProducts.map((p, i) => (
@@ -240,14 +302,68 @@ const Collection = () => {
                 />
               ))}
         </div>
-        {!loading && filterProducts.length <= 0 && (
-          <div className="flex flex-col gap-4 justify-center items-center h-full">
+
+        {/* Empty State */}
+        {!loading && !fetching && filterProducts.length <= 0 && (
+          <div className="flex flex-col gap-4 justify-center items-center py-16">
             <img
               src={assets.no_results}
               alt="search_result"
               className="pointer-events-none w-[150px]"
             />
-            <p className="text-gray-400 w-fit">Search result not found</p>{" "}
+            <p className="text-gray-400 w-fit">Search result not found</p>
+          </div>
+        )}
+
+        {/* Pagination Toolbar */}
+        {!loading && !fetching && totalPages > 1 && (
+          <div className="flex justify-center items-center gap-2 mt-10 mb-6 flex-wrap">
+            <button
+              onClick={() => {
+                setCurrentPage((prev) => Math.max(prev - 1, 1));
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              disabled={currentPage === 1}
+              className={`px-3 py-1.5 border border-gray-300 rounded text-sm transition ${
+                currentPage === 1
+                  ? "opacity-40 cursor-not-allowed bg-gray-50"
+                  : "hover:bg-gray-100 cursor-pointer"
+              }`}
+            >
+              Prev
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+              <button
+                key={num}
+                onClick={() => {
+                  setCurrentPage(num);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className={`w-9 h-9 rounded text-sm border transition ${
+                  currentPage === num
+                    ? "bg-black text-white border-black font-medium"
+                    : "border-gray-300 hover:bg-gray-100 cursor-pointer text-gray-700"
+                }`}
+              >
+                {num}
+              </button>
+            ))}
+
+            <button
+              onClick={() => {
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              disabled={currentPage === totalPages}
+              className={`px-3 py-1.5 border border-gray-300 rounded text-sm transition ${
+                currentPage === totalPages
+                  ? "opacity-40 cursor-not-allowed bg-gray-50"
+                  : "hover:bg-gray-100 cursor-pointer"
+              }`}
+            >
+              Next
+            </button>
           </div>
         )}
       </div>
