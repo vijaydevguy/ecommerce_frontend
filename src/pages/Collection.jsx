@@ -5,6 +5,7 @@ import { assets } from "../assets/frontend_assets/assets";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
 import ProductItemSkeleton from "../components/ProductItemSkeleton";
+import useDebounce from "../hooks/useDebounce";
 import { Zoom } from "react-toastify";
 
 const Filters = [
@@ -72,10 +73,13 @@ const Collection = () => {
   const [totalProducts, setTotalProducts] = useState(0);
   const [fetching, setFetching] = useState(false);
 
-  // Reset to page 1 whenever filters, search, limit, or sort change
+  // Debounce search input (400ms delay)
+  const debouncedSearch = useDebounce(search, 400);
+
+  // Reset to page 1 whenever filters, debouncedSearch, limit, or sort change
   useEffect(() => {
     setCurrentPage(1);
-  }, [category, subCategory, sortType, search, showSearch, limit]);
+  }, [category, subCategory, sortType, debouncedSearch, showSearch, limit]);
 
   // Categories & Subcategories toggle handlers
   const toggleCategory = (e) => {
@@ -129,9 +133,9 @@ const Collection = () => {
     }
 
     // Search filter
-    if (search && showSearch && search.trim() !== "") {
+    if (debouncedSearch && showSearch && debouncedSearch.trim() !== "") {
       productsCopy = productsCopy.filter((item) =>
-        item.name.toLowerCase().includes(search.toLowerCase()),
+        item.name.toLowerCase().includes(debouncedSearch.toLowerCase()),
       );
     }
 
@@ -155,8 +159,8 @@ const Collection = () => {
       if (subCategory.length > 0)
         params.append("subCategory", subCategory.join(","));
       if (sortType) params.append("sort", sortType);
-      if (search && showSearch && search.trim() !== "") {
-        params.append("search", search.trim());
+      if (debouncedSearch && showSearch && debouncedSearch.trim() !== "") {
+        params.append("search", debouncedSearch.trim());
       }
 
       const res = await axios.get(
@@ -187,7 +191,7 @@ const Collection = () => {
     category,
     subCategory,
     sortType,
-    search,
+    debouncedSearch,
     showSearch,
     currentPage,
     limit,
