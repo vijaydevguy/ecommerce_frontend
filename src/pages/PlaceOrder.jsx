@@ -61,6 +61,12 @@ const PlaceOrder = () => {
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
+    if (!token) {
+      toast.info("Please log in to place an order");
+      navigate("/login", { state: { from: "/place-order" } });
+      return;
+    }
+
     console.log("formData for placeorder", formData);
     let orderItems = [];
 
@@ -85,6 +91,12 @@ const PlaceOrder = () => {
             }
           }
         }
+      }
+
+      if (orderItems.length === 0) {
+        toast.error("Your cart is empty. Please add items first.");
+        navigate("/collection");
+        return;
       }
       let orderData = {
         address: formData,
@@ -138,6 +150,25 @@ const PlaceOrder = () => {
       toast.error(error.message);
     }
   };
+
+  if (!token) {
+    return (
+      <div className="border-t border-gray-200 pt-16 flex flex-col items-center justify-center text-center py-20">
+        <h2 className="text-xl font-medium text-gray-800 mb-2">
+          Please Log In to Checkout
+        </h2>
+        <p className="text-gray-500 text-sm max-w-sm mb-6">
+          You need an account to enter shipping details and complete your order.
+        </p>
+        <button
+          onClick={() => navigate("/login", { state: { from: "/place-order" } })}
+          className="bg-black text-white px-8 py-3 text-sm font-medium hover:bg-gray-800 transition-colors"
+        >
+          Log In / Sign Up
+        </button>
+      </div>
+    );
+  }
 
   return (
     <form

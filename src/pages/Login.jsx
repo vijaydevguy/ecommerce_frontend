@@ -1,10 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
 const Login = () => {
   const { token, setToken, navigate, backendUrl } = useContext(ShopContext);
+  const location = useLocation();
+  const redirectTo = location.state?.from || "/";
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -13,6 +16,14 @@ const Login = () => {
   const [isLogin, setLogin] = useState(true);
 
   const currentState = isLogin ? "Login" : "Sign Up";
+
+  const getPageTitle = (path) => {
+    if (!path) return "your account";
+    if (path.includes("cart")) return "your cart";
+    if (path.includes("orders")) return "your orders";
+    if (path.includes("place-order")) return "checkout";
+    return path;
+  };
 
   const onSubmitHandle = async (e) => {
     e.preventDefault();
@@ -34,6 +45,7 @@ const Login = () => {
           console.log(token, "tokenfromlogin");
           localStorage.setItem("token", res.data.token);
           toast.success("Sign up successfully");
+          navigate(redirectTo, { replace: true });
         } else {
           toast.error(res.data.message);
         }
@@ -50,6 +62,7 @@ const Login = () => {
           setToken(res.data.token);
           localStorage.setItem("token", res.data.token);
           toast.success("Login successfully");
+          navigate(redirectTo, { replace: true });
         } else {
           toast.error(res.data.message);
         }
@@ -61,7 +74,7 @@ const Login = () => {
 
   useEffect(() => {
     if (token) {
-      navigate("/");
+      navigate(redirectTo, { replace: true });
     }
   }, [token]);
 
@@ -75,6 +88,12 @@ const Login = () => {
         <p className="prata-regular text-3xl">{currentState}</p>
         <hr className="border-none h-[1.5px] w-8 bg-gray-800" />
       </div>
+
+      {location.state?.from && (
+        <div className="w-full bg-amber-50 border border-amber-200 text-amber-800 text-xs sm:text-sm px-4 py-2.5 rounded text-center">
+          Please log in to continue to <span className="font-semibold">{getPageTitle(location.state.from)}</span>.
+        </div>
+      )}
 
       {isLogin ? (
         ""

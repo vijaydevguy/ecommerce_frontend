@@ -3,12 +3,14 @@ import { useParams } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/frontend_assets/assets";
 import RelatedProducts from "../components/RelatedProducts";
+import { toast } from "react-toastify";
 
 const Product = () => {
   const { productId } = useParams();
   // console.log(productId);
 
-  const { products, currency, addToCart } = useContext(ShopContext);
+  const { products, currency, addToCart, token, navigate } =
+    useContext(ShopContext);
 
   const [productData, setProductData] = useState();
   const [size, setSize] = useState();
@@ -97,8 +99,19 @@ const Product = () => {
             </div>
           </div>
           <button
-            onClick={() => addToCart({ itemId: productData._id, size })}
-            className="cursor-pointer bg-black text-white px-8 py-3 text-sm active:bg-black/80"
+            onClick={() => {
+              if (!token) {
+                toast.info("Please log in to add items to your cart");
+                navigate("/login", { state: { from: `/product/${productId}` } });
+                return;
+              }
+              if (!size) {
+                toast.error("Please select a product size");
+                return;
+              }
+              addToCart({ itemId: productData._id, size });
+            }}
+            className="cursor-pointer bg-black text-white px-8 py-3 text-sm active:bg-black/80 hover:bg-gray-800 transition-colors"
           >
             Add to cart
           </button>

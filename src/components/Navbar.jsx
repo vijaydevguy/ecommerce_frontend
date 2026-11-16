@@ -3,6 +3,7 @@ import { assets } from "../assets/frontend_assets/assets";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { IoCloseCircle } from "react-icons/io5";
 import { ShopContext } from "../context/ShopContext";
+import { toast } from "react-toastify";
 
 const menu = [
   {
@@ -125,17 +126,27 @@ const Navbar = () => {
           )}
         </div>
 
-        <Link to="/cart" className="relative">
+        <button
+          type="button"
+          onClick={() => {
+            if (!token) {
+              toast.info("Please log in to access your cart");
+              navigate("/login", { state: { from: "/cart" } });
+            } else {
+              navigate("/cart");
+            }
+          }}
+          className="relative cursor-pointer"
+        >
           <img
             src={assets.cart_icon}
             alt="cart"
-            className="w-5 min-w-5 cursor-pointer pointer-events-none min-w-[20px] min-h-[20px]"
+            className="w-5 min-w-[20px] min-h-[20px]"
           />
           <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px] ">
-            {/* 10 */}
             {getCartCount()}
           </p>
-        </Link>
+        </button>
 
         <img
           onClick={() => setVisible(!visible)}
@@ -178,6 +189,7 @@ const Navbar = () => {
             <NavLink
               key={i}
               to={m.link}
+              onClick={() => setVisible(false)}
               className={"flex flex-col w-fit gap-1"}
             >
               <p
@@ -195,6 +207,41 @@ const Navbar = () => {
               />
             </NavLink>
           ))}
+
+          <hr className="border-gray-200 my-2" />
+
+          {token ? (
+            <>
+              <button
+                onClick={() => {
+                  setVisible(false);
+                  navigate("/orders");
+                }}
+                className="text-left text-gray-700 font-medium py-1"
+              >
+                My Orders
+              </button>
+              <button
+                onClick={() => {
+                  setVisible(false);
+                  logout();
+                }}
+                className="text-left text-red-600 font-medium py-1"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => {
+                setVisible(false);
+                navigate("/login");
+              }}
+              className="text-left text-black font-semibold py-1"
+            >
+              Login / Sign Up
+            </button>
+          )}
         </div>
       </div>
     </div>
