@@ -3,6 +3,7 @@ import { ShopContext } from "../context/ShopContext";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const { token, setToken, navigate, backendUrl } = useContext(ShopContext);
@@ -12,6 +13,7 @@ const Login = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [isLogin, setLogin] = useState(true);
 
@@ -91,7 +93,11 @@ const Login = () => {
 
       {location.state?.from && (
         <div className="w-full bg-amber-50 border border-amber-200 text-amber-800 text-xs sm:text-sm px-4 py-2.5 rounded text-center">
-          Please log in to continue to <span className="font-semibold">{getPageTitle(location.state.from)}</span>.
+          Please log in to continue to{" "}
+          <span className="font-semibold">
+            {getPageTitle(location.state.from)}
+          </span>
+          .
         </div>
       )}
 
@@ -116,14 +122,24 @@ const Login = () => {
         placeholder="Email"
         required
       />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="w-full px-3 py-2 border border-gray-800 transition-all duration-300 ease-in-out"
-        placeholder="Enter Password"
-        required
-      />
+      <div className="relative w-full flex items-center">
+        <input
+          type={showPassword ? "text" : "password"}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full px-3 py-2 pr-10 border border-gray-800 transition-all duration-300 ease-in-out"
+          placeholder="Enter Password"
+          required
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 text-gray-500 hover:text-gray-800 cursor-pointer focus:outline-none"
+          aria-label={showPassword ? "Hide password" : "Show password"}
+        >
+          {showPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+        </button>
+      </div>
 
       <div className="w-full flex justify-between text-sm mt-[-8px]">
         <p className="cursor-pointer hover:underline transition-colors duration-300 ease-in-out">
